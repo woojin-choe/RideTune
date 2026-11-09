@@ -1,6 +1,6 @@
 # RideTune
 
-> 한 줄 소개: _(기획 확정 후 작성)_
+> 휴대폰에서 한 번 설정한 나의 감각 프로필로, 차가 소리·빛·공기를 내게 맞춰 주는 감각 민감 탑승자용 차량 앱
 
 현대자동차그룹 차량용 앱 개발 공모전 출품작. Pleos Connect(Android Automotive) 환경에서 동작하는 차량용 앱입니다.
 공모전 요강 정리: [docs/contest-info.md](docs/contest-info.md)
