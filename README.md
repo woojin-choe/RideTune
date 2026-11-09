@@ -42,7 +42,7 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 - `local.properties`에 Android SDK 경로(`sdk.dir=...`). Android Studio로 열면 자동 생성된다.
 - Pleos SDK는 `https://nexus-playground.pleos.ai/repository/maven-releases/`에서 받는다(별도 인증 없음).
-- release 서명(선택): `~/.gradle/gradle.properties`에 아래 값을 두면 서명된 APK가 만들어진다. 없으면 서명 없이 빌드된다.
+- release 서명(선택): `~/.gradle/gradle.properties`에 아래 값을 두면 서명된 APK가 만들어진다. 없으면 debug 키로 서명된다(설치·실행은 되지만 마켓 배포용은 아님).
   ```properties
   ridetune.storeFile=/절대/경로/ridetune.jks
   ridetune.storePassword=...
@@ -54,9 +54,12 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 ## 프로젝트 구조
 
 ```
-app/                 Android 앱 모듈 (Kotlin, Jetpack Compose)
-apk/                 제출용 release APK
-docs/contest-info.md 공모전 요강 정리
-docs/proposal/       접수양식(기획서) 초안
-docs/checklist.md    제출 체크리스트
+app/src/main/kotlin/com/ridetune/app/
+  domain/        감각 프로필(SensoryProfile) → 차 안 목표 설정(CabinTarget) 계산(CabinPlanner)
+  data/          프로필 저장(ProfileRepository)
+  data/vehicle/  Pleos Vehicle SDK로 조명·스마트글라스·공조·창문 적용(PleosCabinController)
+  ui/            프로필 편집 + "내 프로필 적용" / "진정 모드" 화면
+app/src/test/    CabinPlanner 단위 테스트 (./gradlew testDebugUnitTest)
+apk/             제출용 release APK
+docs/            공모전 요강 정리, 기획서 초안, 제출 체크리스트
 ```

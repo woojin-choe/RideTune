@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">RideTune</string>
-    <string name="home_tagline">나의 감각에 맞춰 달라지는 차</string>
+
+    <string name="profile_title">나의 감각 프로필</string>
+    <string name="sense_sound">소리</string>
+    <string name="sense_light">빛·눈부심</string>
+    <string name="sense_climate">바람·온도</string>
+    <string name="sense_change">갑작스러운 변화</string>
+    <string name="level_none">괜찮아요</string>
+    <string name="level_some">조금 민감</string>
+    <string name="level_high">많이 민감</string>
+    <string name="profile_temp">편한 온도</string>
+    <string name="temp_value">%.1f°C</string>
+    <string name="profile_color">편안한 색</string>
+
+    <string name="action_comfort">내 프로필 적용</string>
+    <string name="action_calm">진정 모드</string>
+    <string name="applying">차량에 적용하는 중…</string>
+    <string name="report_title">적용 결과 %1$d / %2$d</string>
+    <string name="outcome_ok">적용됨</string>
+    <string name="outcome_unsupported">이 차량 미지원</string>
+    <string name="outcome_failed">실패</string>
+
+    <string name="item_ambient_brightness">무드등 밝기</string>
+    <string name="item_ambient_color">무드등 색</string>
+    <string name="item_cabin_light">실내등 끄기</string>
+    <string name="item_smart_glass">스마트글라스</string>
+    <string name="item_temperature">온도</string>
+    <string name="item_fan_speed">풍량</string>
+    <string name="item_recirculation">내기순환</string>
+    <string name="item_windows">창문 닫기</string>
 </resources>
