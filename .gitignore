@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# 비밀값 / 로컬 설정
+.env
+.env.*
+local.properties
+
+# Android / Gradle
+.gradle/
+.kotlin/
+build/
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# 서명 키
+*.jks
+*.keystore
+
+# APK는 제출용 apk/ 폴더만 올림
+*.apk
+*.aab
+!apk/*.apk
+
+# 임시 파일
+*.log
+~$*
