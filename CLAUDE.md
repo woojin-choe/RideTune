@@ -16,5 +16,5 @@
 - AVD `Pleos_UI_Intel`. `-gpu host`면 에뮬레이터 창이 검게 나온다 → `-gpu swiftshader_indirect`(tools/emulator.sh). AVD 설정보다 실행 옵션이 확실하다.
 - `hw.screen=multi-touch`여야 터치 장치가 생긴다(`touch`로 바꾸면 클릭이 안 먹음).
 - `-gpu host`로 켰을 때는 차량 제어(set)가 시간 초과(PropertyAsyncError 3)로 실패했다. swiftshader로 켜면 SDK 응답은 성공으로 온다(풍량만 error 2). 단 가상 콘솔 상태 화면은 `dds_ready=false`라 값 변화를 보여 주지 않는다.
-- 속도를 위해 AVD 해상도를 1920×1080·density 120으로 낮췄다(원래 2560×1440·160). 이 해상도에서는 Pleos 시스템 화면(왼쪽 패널·하단 바)이 깨진다 — 시연 녹화는 원래 해상도로.
+- AVD 해상도는 2560×1440·density 160 그대로 둔다. 1920×1080으로 낮췄더니 Pleos 시스템 앱(drivingview)이 1분마다 죽고 하단 바가 사라졌다.
 - 다른 무거운 앱(게임 등)이 돌면 시스템 앱까지 ANR이 난다.
