@@ -11,8 +11,9 @@ ROOT="${0:A:h}/.."
 export JAVA_HOME="${JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}"
 
 if ! "$ADB" get-state >/dev/null 2>&1; then
+    # 이 Mac(Radeon Pro 5300M)은 -gpu host면 창이 검게 나온다. 소프트웨어 렌더링(swiftshader)을 쓴다.
     echo "에뮬레이터 켜는 중: $AVD (cold boot — quick boot이면 VHAL을 못 쓴다)"
-    nohup "$SDK/emulator/emulator" -avd "$AVD" -no-snapshot -no-boot-anim >"${TMPDIR:-/tmp}/ridetune-emulator.log" 2>&1 &
+    nohup "$SDK/emulator/emulator" -avd "$AVD" -no-snapshot -no-boot-anim -gpu swiftshader_indirect >"${TMPDIR:-/tmp}/ridetune-emulator.log" 2>&1 &
 fi
 "$ADB" wait-for-device
 until [[ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == "1" ]]; do sleep 3; done
