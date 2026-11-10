@@ -16,6 +16,7 @@
 
     <string name="action_comfort">내 프로필 적용</string>
     <string name="action_calm">진정 모드</string>
+    <string name="nothing_to_apply">민감한 항목을 하나 이상 고르면 차 안을 맞춰 드려요.</string>
     <string name="applying">차량에 적용하는 중…</string>
     <string name="report_title">적용 결과 %1$d / %2$d</string>
     <string name="outcome_ok">적용됨</string>

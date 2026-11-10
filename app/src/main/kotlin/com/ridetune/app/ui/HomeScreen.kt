@@ -134,6 +134,8 @@ private fun ActionPanel(apply: ApplyState, onComfort: () -> Unit, onCalm: () -> 
         Spacer(Modifier.height(8.dp))
         when {
             apply.running != null -> Text(stringResource(R.string.applying), style = MaterialTheme.typography.titleMedium)
+            apply.report != null && apply.report.results.isEmpty() ->
+                Text(stringResource(R.string.nothing_to_apply), style = MaterialTheme.typography.titleMedium)
             apply.report != null -> {
                 Text(
                     stringResource(R.string.report_title, apply.report.okCount, apply.report.results.size),
