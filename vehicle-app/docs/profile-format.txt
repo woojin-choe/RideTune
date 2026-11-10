@@ -1,0 +1,27 @@
+RideTune Profile v1
+
+UTF-8 JSON, 최대 16KB. 알 수 없는 필드/스키마 버전/enum은 거부합니다.
+필수: profileId (영문·숫자·_·- 1~64자), displayName (공백 제외 1~30자), preferences.
+schemaVersion 기본 1, preferredSeat 기본 ROW_1_RIGHT.
+updatedAt: Unix epoch milliseconds. avatarKey: 향후 아이콘용 메타데이터.
+
+preferredSeat: ROW_1_LEFT, ROW_1_RIGHT, ROW_2_LEFT, ROW_2_CENTER, ROW_2_RIGHT,
+ROW_3_LEFT, ROW_3_CENTER, ROW_3_RIGHT. 차량이 그 좌석을 지원하는지는 별도 확인.
+
+preferences의 모든 값은 생략/null 가능하며 '현재 설정 유지'입니다.
+- temperatureCelsius: 숫자 10~40, 차량 실제 범위/간격은 적용 전 다시 검증
+- fanPreference: OFF / LOW / MEDIUM / HIGH
+- airflowPreference: FACE / FLOOR / FACE_AND_FLOOR
+- power / auto / ac: boolean
+- ambientEnabled: boolean
+- ambientBrightnessPercent: 정수 0~100, 차량 min/max로 선형 매핑
+- ambientColorHex: #RRGGBB
+- ambientColorAuto: boolean
+
+충돌: auto=true와 수동 풍량/방향 지정, power=false와 공조 동작 지정,
+ambientColorAuto=true와 고정색 지정은 거부합니다.
+
+전송 레이어와 독립적인 데이터 모델입니다. JSON 가져오기는 즉시 차량을 바꾸지 않습니다.
+향후 iPhone/BLE/QR 연결 시에도 검증 → 좌석/지원 기능 확인 → 차량 사용자 확인 → 적용을 유지합니다.
+QR은 그 자체로 무선 통신이 아니므로 QR 단독 payload인지 페어링용 QR인지 별도 설계해야 합니다.
+인증 없는 BLE 자동 적용이나 차량에 카메라가 있다고 가정하는 흐름은 현재 포함하지 않습니다.

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "profileId": "sample-sea",
+  "displayName": "바다",
+  "avatarKey": "leaf",
+  "updatedAt": 0,
+  "preferredSeat": "ROW_1_RIGHT",
+  "preferences": {
+    "temperatureCelsius": 22.0,
+    "fanPreference": "LOW",
+    "airflowPreference": "FLOOR",
+    "power": true,
+    "auto": false,
+    "ac": true,
+    "ambientEnabled": true,
+    "ambientBrightnessPercent": 20,
+    "ambientColorHex": "#5588CC",
+    "ambientColorAuto": false
+  }
+}
