@@ -15,8 +15,8 @@
 
 - [ ] GitHub 저장소 주소를 기획서 7번에 기재
 - [ ] Private이면 공지된 심사용 계정을 Collaborator로 초대하고 접근 확인 (쓰기 권한 주의)
-- [ ] `ridetune.teamName` 설정 후 `./gradlew submissionApk` → `apk/팀명_RideTune_release.apk` 커밋
-- [ ] APK가 에뮬레이터에서 실행되는지 확인
+- [ ] `gradle.properties`의 `ridetune.teamName` 설정 후 `./gradlew submissionApk` → `apk/팀명_RideTune_release.apk` 커밋 (release 서명 키는 세팅됨: `~/.android/keys/ridetune-release.jks`)
+- [ ] APK가 에뮬레이터에서 실행되는지 확인 — 이 Mac은 설치·화면까지만 됨, 차량 제어 확인은 사양 맞는 PC 필요
 - [ ] README의 한 줄 소개·실행 방법·테스트 환경·APK 위치 최신화
 - [ ] 시연 영상(목업·화면 녹화 가능) 링크를 기획서 7번에 기재
 - [ ] 첨부·링크에 개인정보·계정정보·실명이 드러나지 않는지 확인

@@ -34,7 +34,8 @@
 # Android Studio에 들어 있는 JDK를 써도 된다
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
-./gradlew installDebug      # 연결된 에뮬레이터/기기에 debug 설치
+./tools/emulator.sh         # Pleos 에뮬레이터 켜기 + debug 빌드 설치·실행 (가상 콘솔 http://127.0.0.1:8088)
+./gradlew installDebug      # 이미 켜진 에뮬레이터/기기에 debug 설치
 ./gradlew submissionApk     # release 빌드 후 apk/<팀명>_RideTune_release.apk로 복사
 ```
 
@@ -60,6 +61,8 @@ app/src/main/kotlin/com/ridetune/app/
   data/vehicle/  Pleos Vehicle SDK로 조명·스마트글라스·공조·창문 적용(PleosCabinController)
   ui/            프로필 편집 + "내 프로필 적용" / "진정 모드" 화면
 app/src/test/    CabinPlanner 단위 테스트 (./gradlew testDebugUnitTest)
+tools/           에뮬레이터 실행 스크립트
+.github/         GitHub Actions: 푸시마다 테스트·lint·APK 빌드
 apk/             제출용 release APK
 docs/            공모전 요강 정리, 기획서 초안, 제출 체크리스트
 ```
