@@ -77,4 +77,27 @@ class LogicTest {
         val first=async {engine.apply("test",plan)};yield()
         assertTrue(runCatching {engine.apply("test",plan)}.isFailure);first.await()
     }
+    @Test fun aiCompanionAndProfileFieldsWork() {
+        val p = PassengerProfile(
+            profileId = "minjun",
+            displayName = "민준",
+            interestTopic = "기차와 역 이름",
+            comfortPhrase = "이번 역을 지나 이모네 역으로 안전하게 가고 있어",
+            weatherScene = "비 오는 길",
+            preferences = Preferences(temperatureCelsius = 22.0f, fanPreference = "LOW", ambientBrightnessPercent = 20)
+        )
+        val encoded = profileJson.encodeToString(PassengerProfile.serializer(), p)
+        val decoded = ProfileCodec.decode(encoded)
+        assertEquals("기차와 역 이름", decoded.interestTopic)
+        assertEquals("비 오는 길", decoded.weatherScene)
+        val repeatTurn = AiCompanionEngine.repeatQuestionTurn(decoded, 3, true)
+        assertTrue(repeatTurn.speakerLabel.contains("3번째"))
+        assertTrue(repeatTurn.aiReply.contains("다시 알려줄게"))
+        assertTrue(repeatTurn.aiReply.contains("이모네 역"))
+        val (weatherTurn, weatherPrefs) = AiCompanionEngine.windowWeatherTurn(decoded, "비 오는 길", true)
+        assertEquals(23.0f, weatherPrefs.temperatureCelsius)
+        assertTrue(weatherTurn.speakerLabel.contains("비 오는 길"))
+        val (_, sosPrefs) = AiCompanionEngine.sensorySosTurn(decoded, "LIGHT")
+        assertEquals(10, sosPrefs.ambientBrightnessPercent)
+    }
 }

@@ -14,6 +14,10 @@ private struct Passenger: Codable, Identifiable {
     var temperature: Double = 22
     var fan: Fan = .low
     var brightness: Double = 20
+    var colorHex: String = "#5588CC"
+    var interestTopic: String = "바다와 고래"
+    var comfortPhrase: String = "지금은 안전하게 가는 중이고, 곧 도착해요"
+    var weatherScene: String = "비 오는 길"
 
     var initial: String { name.first.map(String.init) ?? "" }
     var degrees: String { temperature.formatted(.number.precision(.fractionLength(0...1))) + "°C" }
@@ -22,6 +26,15 @@ private struct Passenger: Codable, Identifiable {
     enum Fan: String, CaseIterable, Codable {
         case low = "약하게", medium = "중간", high = "강하게"
     }
+
+    static let topics = ["바다와 고래", "공룡과 나무", "기차와 역 이름", "우주와 별자리"]
+    static let weathers = ["비 오는 길", "깜깜한 밤·터널", "막히는 도로", "맑은 날"]
+    static let colors: [(name: String, hex: String)] = [
+        ("파란 바다", "#5588CC"),
+        ("초록 숲", "#70B89B"),
+        ("따뜻한 노을", "#D2A66B"),
+        ("별빛 보라", "#C28BB3")
+    ]
 }
 
 private enum Palette {
@@ -36,11 +49,30 @@ private enum Palette {
 
 private struct RideTuneView: View {
     private enum Page { case home, editor, connect, review, sent }
-    @AppStorage("passengers.v1") private var savedProfiles = Data()
-    @AppStorage("selectedPassenger.v1") private var savedSelection = ""
+    @AppStorage("passengers.v2") private var savedProfiles = Data()
+    @AppStorage("selectedPassenger.v2") private var savedSelection = ""
+    @AppStorage("vehicleHost.v1") private var vehicleHost = "192.168.200.165"
     @State private var profiles = [
-        Passenger(name: "바다"),
-        Passenger(name: "숲", temperature: 23, brightness: 15)
+        Passenger(
+            name: "바다",
+            temperature: 22,
+            fan: .low,
+            brightness: 20,
+            colorHex: "#5588CC",
+            interestTopic: "바다와 고래",
+            comfortPhrase: "지금은 안전하게 가는 중이고, 곧 도착해요",
+            weatherScene: "비 오는 길"
+        ),
+        Passenger(
+            name: "숲",
+            temperature: 23,
+            fan: .low,
+            brightness: 15,
+            colorHex: "#70B89B",
+            interestTopic: "공룡과 나무",
+            comfortPhrase: "엄마 아빠랑 함께 안전하게 이동하고 있어요",
+            weatherScene: "맑은 날"
+        )
     ]
     @State private var selectedID: UUID?
     @State private var draft = Passenger(name: "")
@@ -102,14 +134,14 @@ private struct RideTuneView: View {
 
     private var home: some View {
         Group {
-            heading("탑승자", "탑승 전에, 각자 편한 환경을 준비해요.")
+            heading("탑승자 & AI 단짝", "감각 환경과 반복 질문을 받아줄 AI 대화 단짝을 준비해요.")
             VStack(alignment: .leading, spacing: 14) {
                 HStack(spacing: 11) {
                     Text(selected.initial).font(.headline)
                         .frame(width: 44, height: 44).background(Palette.white, in: Circle())
                         .accessibilityHidden(true)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("이동 프로필").font(.caption).foregroundStyle(Palette.muted)
+                        Text("이동 감각 · AI 대화 프로필").font(.caption).foregroundStyle(Palette.muted)
                         Text(selected.name).font(.title2.weight(.semibold))
                     }
                     Spacer()
@@ -126,10 +158,40 @@ private struct RideTuneView: View {
                     metric("조명", selected.light)
                 }
                 .fixedSize(horizontal: false, vertical: true)
+                Divider().overlay(Palette.line)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("AI 안심 대화 단짝").font(.caption).foregroundStyle(Palette.muted)
+                    Text("관심사: \(selected.interestTopic) · 창밖: \(selected.weatherScene)")
+                        .font(.subheadline.weight(.semibold))
+                    Text("“\(selected.comfortPhrase)”")
+                        .font(.caption).foregroundStyle(Palette.muted)
+                }
             }
             .padding(17)
             .background(Palette.panel, in: RoundedRectangle(cornerRadius: 22))
-            action("차량에 보내기", icon: "car.fill") { beginConnection() }
+
+            panel {
+                Text("오늘 창밖 상황 빠른 선택").font(.subheadline.weight(.semibold))
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Passenger.weathers, id: \.self) { w in
+                            Button {
+                                updateWeather(w)
+                            } label: {
+                                Text(w)
+                                    .font(.caption.weight(.semibold))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .foregroundStyle(selected.weatherScene == w ? Palette.white : Palette.ink)
+                                    .background(selected.weatherScene == w ? Palette.accent : Palette.white, in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+
+            action("차량에 프로필 & AI 단짝 보내기", icon: "car.fill") { beginConnection() }
             VStack(spacing: 0) {
                 HStack {
                     Text("저장된 프로필").font(.headline).accessibilityAddTraits(.isHeader)
@@ -145,7 +207,11 @@ private struct RideTuneView: View {
                         select(profile.id)
                     } label: {
                         HStack {
-                            Text(profile.name).font(.subheadline.weight(.semibold))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(profile.name).font(.subheadline.weight(.semibold))
+                                Text("\(profile.interestTopic) · \(profile.weatherScene)")
+                                    .font(.caption2).foregroundStyle(Palette.muted)
+                            }
                             if profile.id == selected.id {
                                 Text("선택됨").font(.caption).foregroundStyle(Palette.muted)
                                     .accessibilityHidden(true)
@@ -154,7 +220,7 @@ private struct RideTuneView: View {
                             Text("\(profile.degrees) · 조명 \(profile.light)")
                                 .font(.caption).foregroundStyle(Palette.muted)
                         }
-                        .frame(minHeight: 50)
+                        .frame(minHeight: 54)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -168,7 +234,7 @@ private struct RideTuneView: View {
     private var editor: some View {
         Group {
             heading(profiles.contains { $0.id == draft.id } ? "프로필 편집" : "새 프로필",
-                    "탑승자가 편하게 느끼는 값을 저장해요.")
+                    "탑승자가 편한 환경과 AI 대화 단짝 주제를 저장해요.")
             VStack(alignment: .leading, spacing: 7) {
                 Text("탑승자 이름").font(.subheadline.weight(.semibold))
                 TextField("별명을 입력해 주세요", text: $draft.name)
@@ -177,6 +243,39 @@ private struct RideTuneView: View {
                         if value.count > 30 { draft.name = String(value.prefix(30)) }
                     }
                     .modifier(FieldStyle())
+            }
+            panel {
+                Text("AI 안심 대화 단짝 (반복 질문 응대)").font(.headline).accessibilityAddTraits(.isHeader)
+                Text("좋아하는 특별 관심사").font(.caption).foregroundStyle(Palette.muted)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Passenger.topics, id: \.self) { t in
+                            Button {
+                                draft.interestTopic = t
+                            } label: {
+                                Text(t)
+                                    .font(.caption.weight(.semibold))
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 7)
+                                    .foregroundStyle(draft.interestTopic == t ? Palette.white : Palette.ink)
+                                    .background(draft.interestTopic == t ? Palette.accent : Palette.white, in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                TextField("관심 주제 직접 입력 (예: 바다와 고래, 2호선 지하철)", text: $draft.interestTopic)
+                    .modifier(FieldStyle())
+                Text("반복 질문 시 일관되게 들려줄 안심 문구").font(.caption).foregroundStyle(Palette.muted)
+                TextField("예: 지금은 안전하게 가는 중이고, 곧 도착해요", text: $draft.comfortPhrase)
+                    .modifier(FieldStyle())
+                Text("창밖 날씨·상황").font(.caption).foregroundStyle(Palette.muted)
+                Picker("창밖 상황", selection: $draft.weatherScene) {
+                    ForEach(Passenger.weathers, id: \.self) { w in
+                        Text(w).tag(w)
+                    }
+                }
+                .pickerStyle(.segmented)
             }
             panel {
                 Text("공조").font(.headline).accessibilityAddTraits(.isHeader)
@@ -195,6 +294,16 @@ private struct RideTuneView: View {
             panel {
                 Text("실내조명").font(.headline).accessibilityAddTraits(.isHeader)
                 slider("밝기", display: draft.light, value: $draft.brightness, range: 0...100, step: 5)
+                HStack {
+                    Text("안정 조명 색상").font(.subheadline.weight(.semibold))
+                    Spacer()
+                    Picker("조명 색상", selection: $draft.colorHex) {
+                        ForEach(Passenger.colors, id: \.hex) { item in
+                            Text(item.name).tag(item.hex)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
             }
             action("프로필 저장", enabled: !draft.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) {
                 saveDraft()
@@ -206,8 +315,10 @@ private struct RideTuneView: View {
         Group {
             heading("차량 연결", "차량 화면에서 RideTune을 열고 프로필 가져오기를 눌러 주세요.")
             panel {
-                Label("\(selected.name)의 이동 프로필", systemImage: "person")
+                Label("\(selected.name)의 이동 프로필 & AI 단짝", systemImage: "person")
                     .font(.subheadline.weight(.semibold))
+                Text("관심사: \(selected.interestTopic) · 창밖: \(selected.weatherScene)")
+                    .font(.caption).foregroundStyle(Palette.muted)
             }
             VStack(alignment: .leading, spacing: 7) {
                 Text("차량 화면에 표시된 연결 번호").font(.subheadline.weight(.semibold))
@@ -221,7 +332,16 @@ private struct RideTuneView: View {
                     }
                     .modifier(FieldStyle())
             }
-            Text("같은 Mac에서 실행 중인 Pleos 시뮬레이터에 연결해요.")
+            VStack(alignment: .leading, spacing: 7) {
+                Text("Mac 주소 (실기기 Wi-Fi 연동 시)").font(.caption.weight(.semibold)).foregroundStyle(Palette.muted)
+                TextField("예: 192.168.200.165", text: $vehicleHost)
+                    .keyboardType(.numbersAndPunctuation)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .accessibilityLabel("Mac IP 주소")
+                    .modifier(FieldStyle())
+            }
+            Text("iOS 시뮬레이터(127.0.0.1)와 같은 Wi-Fi의 실제 iPhone 모두 연결할 수 있어요.")
                 .font(.footnote).foregroundStyle(Palette.muted)
             transferError
             action(connecting ? "연결 확인 중…" : "연결 확인", enabled: code.count == 6 && !connecting) {
@@ -232,14 +352,16 @@ private struct RideTuneView: View {
 
     private var review: some View {
         Group {
-            heading("보낼 설정 확인", "차량으로 보낼 프로필을 확인해 주세요.")
+            heading("보낼 설정 확인", "차량으로 보낼 감각 설정과 AI 단짝 주제를 확인해 주세요.")
             panel {
                 Text("\(selected.name)의 이동 프로필").font(.headline)
                 detail("온도", selected.degrees)
                 detail("바람", selected.fan.rawValue)
                 detail("조명", selected.light)
+                detail("AI 관심 주제", selected.interestTopic)
+                detail("창밖 상황", selected.weatherScene)
             }
-            Text("차량 화면에서 받은 프로필을 확인하고 적용해요.")
+            Text("보내기를 누르면 차량 화면에 받은 프로필이 바로 표시돼요.")
                 .font(.footnote).foregroundStyle(Palette.muted)
             transferError
             action(connecting ? "보내는 중…" : "프로필 보내기", enabled: !connecting) { transfer(includeProfile: true) }
@@ -254,10 +376,10 @@ private struct RideTuneView: View {
                 .frame(width: 54, height: 54)
                 .background(Palette.panel, in: Circle())
                 .accessibilityHidden(true)
-            heading("프로필을 보냈어요", "Pleos에서 \(selected.name)의 프로필을 받았어요.")
+            heading("프로필을 보냈어요", "Pleos에서 \(selected.name)의 프로필과 AI 대화 주제를 받았어요.")
             panel {
                 Text("차량에서 할 일").font(.caption).foregroundStyle(Palette.muted)
-                Text("차량 화면에서 받은 프로필을 열고 변경 내용을 확인해 주세요.")
+                Text("차량 화면에서 변경 내용을 확인한 뒤 감각 설정을 적용할 수 있어요.")
                     .font(.subheadline)
             }
             action("탑승자로 돌아가기") { navigate(.home) }
@@ -335,6 +457,12 @@ private struct RideTuneView: View {
         navigate(.connect)
     }
 
+    private func updateWeather(_ weather: String) {
+        guard let index = profiles.firstIndex(where: { $0.id == selected.id }) else { return }
+        profiles[index].weatherScene = weather
+        persist()
+    }
+
     @ViewBuilder private var transferError: some View {
         if let connectionError {
             Text(connectionError).font(.footnote)
@@ -346,13 +474,14 @@ private struct RideTuneView: View {
         guard !connecting else { return }
         let profile = includeProfile ? selected : nil
         let submittedCode = code
+        let submittedHost = vehicleHost.trimmingCharacters(in: .whitespacesAndNewlines)
         codeFocused = false
         connecting = true
         connectionError = nil
         Task {
             defer { connecting = false }
             do {
-                try await SimulatorTransfer.request(code: submittedCode, passenger: profile)
+                try await SimulatorTransfer.request(code: submittedCode, passenger: profile, host: submittedHost)
                 navigate(includeProfile ? .sent : .review)
             } catch {
                 connectionError = error.localizedDescription
@@ -425,12 +554,17 @@ private enum SimulatorTransfer {
     struct VehicleProfile: Encodable {
         let profileId: String
         let displayName: String
+        let interestTopic: String
+        let comfortPhrase: String
+        let weatherScene: String
         let preferences: Preferences
 
         struct Preferences: Encodable {
             let temperatureCelsius: Double
             let fanPreference: String
             let ambientBrightnessPercent: Int
+            let ambientColorHex: String
+            let ambientColorAuto = false
             let power = true
             let auto = false
             let ambientEnabled = true
@@ -439,6 +573,9 @@ private enum SimulatorTransfer {
         init(_ passenger: Passenger) {
             profileId = passenger.id.uuidString
             displayName = passenger.name
+            interestTopic = passenger.interestTopic
+            comfortPhrase = passenger.comfortPhrase
+            weatherScene = passenger.weatherScene
             let fan: String
             switch passenger.fan {
             case .low: fan = "LOW"
@@ -448,19 +585,50 @@ private enum SimulatorTransfer {
             preferences = Preferences(
                 temperatureCelsius: passenger.temperature,
                 fanPreference: fan,
-                ambientBrightnessPercent: Int(passenger.brightness)
+                ambientBrightnessPercent: Int(passenger.brightness),
+                ambientColorHex: passenger.colorHex
             )
         }
     }
 
-    static func request(code: String, passenger: Passenger?) async throws {
-        #if targetEnvironment(simulator)
+    static func request(code: String, passenger: Passenger?, host: String) async throws {
         var data = try JSONEncoder().encode(Request(code: code, profile: passenger.map(VehicleProfile.init)))
         data.append(10)
         let payload = data
+        var candidates: [(String, UInt16)] = []
+        #if targetEnvironment(simulator)
+        candidates.append(("127.0.0.1", 48732))
+        candidates.append(("127.0.0.1", 48733))
+        #endif
+        if !host.isEmpty && host != "127.0.0.1" {
+            candidates.append((host, 48733))
+            candidates.append((host, 48732))
+        }
+        for fallbackHost in ["192.168.200.165", "abcui-MacBookPro.local"] where fallbackHost != host {
+            candidates.append((fallbackHost, 48733))
+        }
+        #if !targetEnvironment(simulator)
+        candidates.append(("127.0.0.1", 48732))
+        #endif
+        var lastError: Error = Failure.unavailable
+        for (targetHost, targetPort) in candidates {
+            do {
+                try await sendOnce(payload: payload, host: targetHost, port: targetPort)
+                return
+            } catch let error as Failure where error == .invalidCode || error == .invalidProfile {
+                throw error
+            } catch {
+                lastError = error
+            }
+        }
+        throw lastError
+    }
+
+    private static func sendOnce(payload: Data, host: String, port: UInt16) async throws {
+        guard let nwPort = NWEndpoint.Port(rawValue: port) else { throw Failure.unavailable }
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             let queue = DispatchQueue(label: "ridetune.simulator-transfer")
-            let connection = NWConnection(host: "127.0.0.1", port: 48732, using: .tcp)
+            let connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: .tcp)
             var finished = false
             func finish(_ result: Result<Void, Error>) {
                 guard !finished else { return }
@@ -487,11 +655,8 @@ private enum SimulatorTransfer {
                 default: break
                 }
             }
-            queue.asyncAfter(deadline: .now() + 4) { finish(.failure(Failure.unavailable)) }
+            queue.asyncAfter(deadline: .now() + 2.5) { finish(.failure(Failure.unavailable)) }
             connection.start(queue: queue)
         }
-        #else
-        throw Failure.unsupported
-        #endif
     }
 }

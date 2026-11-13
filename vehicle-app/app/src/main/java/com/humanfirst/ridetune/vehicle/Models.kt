@@ -26,7 +26,10 @@ import kotlin.math.roundToInt
 @Serializable data class PassengerProfile(
     val schemaVersion: Int = 1, val profileId: String, val displayName: String,
     val avatarKey: String = "leaf", val updatedAt: Long = System.currentTimeMillis(),
-    val preferredSeat: String = "ROW_1_RIGHT", val preferences: Preferences
+    val preferredSeat: String = "ROW_1_RIGHT", val preferences: Preferences,
+    val interestTopic: String = "바다와 고래",
+    val comfortPhrase: String = "조금만 더 가면 안전하게 도착해요",
+    val weatherScene: String = "맑은 날"
 )
 val profileJson = Json { prettyPrint = true; encodeDefaults = true; ignoreUnknownKeys = false; isLenient = false }
 object ProfileCodec {
@@ -39,6 +42,9 @@ object ProfileCodec {
         require(p.schemaVersion == 1) { "지원하지 않는 프로필 버전" }
         require(p.profileId.matches(Regex("[A-Za-z0-9_-]{1,64}"))) { "프로필 ID 형식 오류" }
         require(p.displayName.isNotBlank() && p.displayName.length <= 30) { "별명은 1~30자" }
+        require(p.interestTopic.length <= 60) { "관심 주제는 60자 이하" }
+        require(p.comfortPhrase.length <= 100) { "안심 문구는 100자 이하" }
+        require(p.weatherScene.length <= 40) { "창밖 상황은 40자 이하" }
         require(p.preferredSeat in seats) { "지원하지 않는 좌석" }
         with(p.preferences) {
             require(temperatureCelsius == null || temperatureCelsius.isFinite() && temperatureCelsius in 10f..40f) { "온도는 10~40도 범위" }
@@ -52,9 +58,9 @@ object ProfileCodec {
         }
     }
     fun examples() = listOf(
-        PassengerProfile(profileId="sample-sea",displayName="바다",preferences=Preferences(22f,"LOW","FLOOR",true,false,true,true,20,"#5588CC",false)),
-        PassengerProfile(profileId="sample-forest",displayName="숲",preferences=Preferences(23f,"LOW",null,true,false,null,true,15,"#70B89B",false)),
-        PassengerProfile(profileId="sample-light",displayName="온유",preferences=Preferences(ambientEnabled=true,ambientBrightnessPercent=35,ambientColorHex="#D2A66B",ambientColorAuto=false))
+        PassengerProfile(profileId="sample-sea",displayName="바다",preferences=Preferences(22f,"LOW","FLOOR",true,false,true,true,20,"#5588CC",false),interestTopic="바다와 고래",comfortPhrase="지금은 안전하게 가는 중이고, 곧 도착해요",weatherScene="비 오는 길"),
+        PassengerProfile(profileId="sample-forest",displayName="숲",preferences=Preferences(23f,"LOW",null,true,false,null,true,15,"#70B89B",false),interestTopic="공룡과 나무",comfortPhrase="엄마 아빠랑 함께 안전하게 이동하고 있어요",weatherScene="맑은 날"),
+        PassengerProfile(profileId="sample-light",displayName="온유",preferences=Preferences(ambientEnabled=true,ambientBrightnessPercent=35,ambientColorHex="#D2A66B",ambientColorAuto=false),interestTopic="기차와 역 이름",comfortPhrase="이번 구간만 지나면 바로 도착해요",weatherScene="깜깜한 밤·터널")
     )
 }
 @Serializable data class Capability(val feature: Feature, val area: String, val access: String,
